@@ -7,8 +7,8 @@ const router = express.Router();
 
 router.post("/", auth, upload.single("avatar"), createCommunity);
 router.get("/:communityName", getCommunity);
-router.put("/:communityName", authenticateUser, upload.single("avatar"), updateCommunity);
-router.delete("/:communityName", authenticateUser, deleteCommunity);
+router.put("/:communityName", auth, upload.single("avatar"), updateCommunity);
+router.delete("/:communityName", auth, deleteCommunity);
 
 
 export default router;

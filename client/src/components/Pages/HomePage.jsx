@@ -5,7 +5,7 @@ const HomePage = () => {
   return (
     <div>
       HomePage
-      <CommunityForm />
+      
     </div>
   );
 };

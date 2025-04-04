@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { createCommunity } from "@/services/communityService";
 
-const CommunityForm = () => {
+const CommunityForm = ({ onSuccess }) => {
   const navigate = useNavigate();
+  const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -13,7 +15,7 @@ const CommunityForm = () => {
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [avatarPreview, setAvatarPreview] = useState(null);
+  // const [avatarPreview, setAvatarPreview] = useState(null);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -43,9 +45,13 @@ const CommunityForm = () => {
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setFormData({ ...formData, avatar: file });
-      setAvatarPreview(URL.createObjectURL(file));
+
+    if (file && file.type.startsWith("image/")) {
+      setFormData((prev) => ({ ...prev, avatar: file }));
+      const previewURL = URL.createObjectURL(file);
+      setAvatarPreview(previewURL);
+    } else {
+      setAvatarPreview(null);
     }
   };
 
@@ -75,24 +81,23 @@ const CommunityForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
+
     setIsSubmitting(true);
+
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("name", formData.name);
       formDataToSend.append("description", formData.description);
-      formDataToSend.forEach((rule, index) => {
-        formDataToSend.append(`rules[${index}][title]`, rule.title);
-        formDataToSend.append(`rules[${index}][description]`, rule.description);
-      });
+      formDataToSend.append("rules", JSON.stringify(formData.rules));
       if (formData.avatar) {
         formDataToSend.append("avatar", formData.avatar);
       }
 
-      const response = await axios.post("/api/r", formDataToSend, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const response = await createCommunity(formDataToSend);
+
       if (response.data.success) {
-        navigate(`/r/${response.data.data.name}`);
+        if (onSuccess) onSuccess(response.data.data.name);
+        setSuccess(true);
       }
     } catch (error) {
       setErrors({
@@ -113,7 +118,7 @@ const CommunityForm = () => {
           {errors.form}
         </div>
       )}
-      
+
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1">
@@ -153,19 +158,16 @@ const CommunityForm = () => {
           <label className="block text-sm font-medium mb-1">
             Community Avatar (Optional)
           </label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleAvatarChange}
-            className="w-full"
-          />
-          {avatarPreview && (
+          <input type="file" accept="image/*" onChange={handleAvatarChange} />
+          {/* {avatarPreview ? (
             <img
               src={avatarPreview}
               alt="Avatar Preview"
-              className="mt-2 w-32 h-32 object-cover rounded-md"
+              className="mt-2 w-32 h-32 object-cover rounded-md border"
             />
-          )}
+          ) : (
+            <p className="text-gray-500 mt-2">No preview available</p>
+          )} */}
         </div>
 
         <div className="mb-6">
@@ -187,7 +189,9 @@ const CommunityForm = () => {
               <input
                 type="text"
                 value={rule.title}
-                onChange={(e) => handleRuleChange(index, "title", e.target.value)}
+                onChange={(e) =>
+                  handleRuleChange(index, "title", e.target.value)
+                }
                 className="w-full px-3 py-2 border rounded-md"
                 placeholder="Rule title"
               />
@@ -198,7 +202,9 @@ const CommunityForm = () => {
               )}
               <textarea
                 value={rule.description}
-                onChange={(e) => handleRuleChange(index, "description", e.target.value)}
+                onChange={(e) =>
+                  handleRuleChange(index, "description", e.target.value)
+                }
                 rows={2}
                 className="w-full px-3 py-2 border rounded-md"
                 placeholder="Rule description (optional)"
@@ -219,7 +225,11 @@ const CommunityForm = () => {
           disabled={isSubmitting}
           className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
         >
-          {isSubmitting ? "Creating..." : "Create Community"}
+          {isSubmitting
+            ? "Creating..."
+            : success
+            ? "Created successfully"
+            : "Create Community"}
         </button>
       </form>
     </div>
