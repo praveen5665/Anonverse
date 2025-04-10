@@ -12,3 +12,7 @@ export const createCommunity = async (data) => {
     });
     return response;
 };
+export const getCommunityByName = async (name) => {
+    return await axios.get(`${API_URL}/${name}`);
+}
+  

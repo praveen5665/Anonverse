@@ -86,7 +86,7 @@ const CommunityForm = ({ onSuccess }) => {
 
     try {
       const formDataToSend = new FormData();
-      formDataToSend.append("name", formData.name);
+      formDataToSend.append("name", formData.name.toLowerCase());
       formDataToSend.append("description", formData.description);
       formDataToSend.append("rules", JSON.stringify(formData.rules));
       if (formData.avatar) {

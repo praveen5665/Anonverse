@@ -5,10 +5,9 @@ import { auth } from '../middleware/auth.js';
 
 const router = express.Router();
 
-router.post("/", auth, upload.single("avatar"), createCommunity);
+router.post("/", auth, upload.community.single("avatar"), createCommunity);
 router.get("/:communityName", getCommunity);
-router.put("/:communityName", auth, upload.single("avatar"), updateCommunity);
+router.put("/:communityName", auth, upload.community.single("avatar"), updateCommunity);
 router.delete("/:communityName", auth, deleteCommunity);
-
 
 export default router;
