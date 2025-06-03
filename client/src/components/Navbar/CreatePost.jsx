@@ -75,7 +75,7 @@ const CreatePost = () => {
              onSuccess={(communityName) => {
               setTimeout(() => {
                 setIsCommunityFormOpen(false);
-                navigate(`/r/${response.data.data.name}`);
+                navigate(`/r/${communityName}`);
               }, 1100);
             }}
              />

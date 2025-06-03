@@ -81,7 +81,9 @@ export const createPost = async(req, res) => {
 
 export const getPosts = async(req, res) => {
     try {
-        const { communityId } = req.query;
+        console.log("Get posts request params:", req.params);
+        const  communityId  = req.params.communityId ;
+        console.log("Community ID:", communityId);
         const filter = communityId ? { community: communityId } : {};
         const posts = await Post.find(filter).populate("authorId", "username").populate("community", "name");
         
@@ -102,8 +104,8 @@ export const getPosts = async(req, res) => {
 
 export const getPost = async(req, res) => {
     try {
-        const { id } = req.params;
-        const post = await Post.findById(id).populate("authorId", "username").populate("community", "name");
+        const { postId } = req.params;
+        const post = await Post.findById(postId).populate("authorId", "username").populate("community", "name");
         if (!post) {
             return res.status(404).json({
                 success: false,

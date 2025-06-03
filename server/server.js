@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js'
 import communityRoutes from './routes/communityRoutes.js'
 import postRoutes from './routes/postRoutes.js'
+import commentRoutes from './routes/commentRoutes.js';
 
 dotenv.config();
 
@@ -25,7 +26,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/r', communityRoutes);
 app.use('/api/post', postRoutes);
-
+app.use('/api/comment', commentRoutes);
 
 
 const PORT = process.env.PORT || 5000;

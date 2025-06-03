@@ -6,7 +6,7 @@ export const createPost = async (postData) => {
     const token = localStorage.getItem("token");
     const response = await axios.post(API_URL, postData, {
       headers: {
-        "token": token,
+        token: token,
       },
     });
 
@@ -16,7 +16,75 @@ export const createPost = async (postData) => {
 
     return response;
   } catch (error) {
-    console.error("Error creating post:", error.response?.data || error.message);
+    console.error(
+      "Error creating post:",
+      error.response?.data || error.message
+    );
     throw error;
   }
-}
+};
+export const getPostsByCommunityId = async (communityId) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(API_URL, {
+      headers: {
+        token: token,
+      },
+      params: {
+        communityId,
+      },
+    });
+
+    if (!response.data.success) {
+      throw new Error(response.data.message || "Failed to fetch posts");
+    }
+    //console.log("Posts fetched successfully:", response.data.data);
+    return response;
+  } catch (error) {
+    console.error(
+      "Error fetching posts:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+export const handleVote = async (postId, voteType, currentVote) => {
+  try {
+    const token = localStorage.getItem("token");
+    const newVoteType = currentVote === voteType ? null : voteType;
+
+    const response = await axios.post(
+      `${API_URL}${postId}/vote`, 
+      { voteType: newVoteType },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          token,
+        },
+      }
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.message);
+    }
+
+    return response.data.data;
+  } catch (error) {
+    console.error("Error voting:", error);
+    throw error;
+  }
+};
+
+export const getPost = async(postId) =>{
+  try {
+      const response = await axios.get(`${API_URL}${postId}`);
+      if (!response.data.success) {
+      throw new Error(response.data.message || "Failed to fetch post");
+    }
+    console.log("Post fetched successfully:", response.data.data);
+    return response;
+  } catch (error) {
+    console.error("Error fetching post:", error.response?.data || error.message)
+  }
+};

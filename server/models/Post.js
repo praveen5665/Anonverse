@@ -28,14 +28,14 @@ const postSchema = new mongoose.Schema({
         type: String,
         default: ""
     },
-    upVotes: {
-        type: Number,
-        default: 0
-    },
-    downVotes: {
-        type: Number,
-        default: 0
-    },
+    upVotes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    downVotes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
     createdAt: {
         type: Date,
         default: Date.now

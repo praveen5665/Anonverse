@@ -4,7 +4,7 @@ import cloudinary from "../config/cloudinary.js";
 export const createCommunity = async (req, res) => {
   try {
     let { name, description } = req.body;
-    name = name.trim().toLowerCase(); 
+    name = name.trim(); 
     description = description.trim();
     let rules = [];
 

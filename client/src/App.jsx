@@ -26,7 +26,6 @@ const App = () => {
           <Route index element = {<HomePage />} />
           <Route path='r/:communityName' element = {<CommunityPage />} />
           <Route path='r/:communityName/submit' element={<SubmitPage />} />
-          {/* <Route path='r/:communityName/edit' element={<UpdateCommunityForm />} /> */}
           <Route path='u/:username' element={<ProfilePage />} />
           <Route path='post/:postId' element={<PostPage />} />
           <Route path='*' element={<Navigate to={'/'} replace />} />

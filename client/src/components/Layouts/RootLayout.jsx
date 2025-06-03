@@ -1,6 +1,7 @@
 import Navbar from "../Navbar/Navbar";
 import { Outlet } from "react-router-dom";
 import SidebarComp from "../Sidebar/SidebarComp";
+import { Toaster } from "sonner";
 
 export default function RootLayout() {
   return (
@@ -12,10 +13,11 @@ export default function RootLayout() {
         <aside className="w-64 border-r border-gray-300">
           <SidebarComp />
         </aside>
-        <main className="flex-1 p-10">
+        <main className="flex-1 p-10 bg-gray-100">
           <Outlet />
         </main>
       </div>
+      <Toaster />
     </div>
   );
 }

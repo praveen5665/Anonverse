@@ -22,7 +22,7 @@ const SubmitPage = () => {
   useEffect(() => {
     const fetchCommunity = async () => {
       try {
-        const response = await getCommunityByName(communityName);
+        const response = await getCommunityByName(communityName ? communityName.toLowerCase() : '');
         // console.log(response.data.data._id);
         setCommunityId(response.data.data._id);
       } catch (error) {
@@ -115,7 +115,7 @@ const SubmitPage = () => {
         throw new Error("Failed to create post");
       }
       setSuccess(true);
-      navigate(`/r/${communityName}`);
+      navigate(`/r/${communityName ? communityName.toLowerCase() : ''}`);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -126,7 +126,7 @@ const SubmitPage = () => {
   return (
     <div className="max-w-3xl mx-auto">
       <div className="bg-white rounded-lg shadow p-6">
-        <h1 className="text-2xl font-bold mb-6">Create a post in r/{communityName}</h1>
+        <h1 className="text-2xl font-bold mb-6">Create a post in r/{communityName ? communityName.toLowerCase() : ''}</h1>
         <form className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="title">Title</Label>
