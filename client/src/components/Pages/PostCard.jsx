@@ -4,6 +4,7 @@ import { BiUpvote, BiDownvote } from "react-icons/bi";
 import { formatDistanceToNow } from "date-fns";
 import { handleVote as handleVoteAPI } from "@/services/postService";
 import { useUserContext } from "@/context/AuthContext";
+import { toast } from "sonner";
 
 const PostCard = ({ PostData, isPostPage, onCommentClick }) => {
   const { user, token } = useUserContext();
@@ -53,7 +54,6 @@ const PostCard = ({ PostData, isPostPage, onCommentClick }) => {
       // Make API call
       const result = await handleVoteAPI(PostData._id, voteType, userVote);
 
-      // Update state after successful API call
       setUserVote(userVote === voteType ? null : voteType);
       setVotes({
         upVotes: result.upVotes,
@@ -71,6 +71,14 @@ const PostCard = ({ PostData, isPostPage, onCommentClick }) => {
     } else {
       navigate(`/post/${PostData._id}`);
     }
+  };
+
+  const handleShareClick = () => {
+    const postUrl = `${window.location.origin}/post/${PostData._id}`;
+    navigator.clipboard.writeText(postUrl);
+    toast.success("Link copied to clipboard!", {
+      duration: 1300,
+    });
   };
 
   return (
@@ -127,9 +135,12 @@ const PostCard = ({ PostData, isPostPage, onCommentClick }) => {
             {noOfComments} comment{noOfComments !== 1 ? "s" : ""}
           </button>
         </div>
-        <div className="text-gray-500 hover:text-gray-700 transition-colors">
+        <button
+          onClick={handleShareClick}
+          className="text-gray-500 hover:text-gray-700 transition-colors"
+        >
           share
-        </div>
+        </button>
       </div>
     </div>
   );

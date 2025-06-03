@@ -17,7 +17,7 @@ export default function RootLayout() {
           <Outlet />
         </main>
       </div>
-      <Toaster />
+      <Toaster position="top-center" />
     </div>
   );
 }

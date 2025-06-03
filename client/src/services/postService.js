@@ -38,7 +38,6 @@ export const getPostsByCommunityId = async (communityId) => {
     if (!response.data.success) {
       throw new Error(response.data.message || "Failed to fetch posts");
     }
-    //console.log("Posts fetched successfully:", response.data.data);
     return response;
   } catch (error) {
     console.error(
@@ -82,7 +81,6 @@ export const getPost = async(postId) =>{
       if (!response.data.success) {
       throw new Error(response.data.message || "Failed to fetch post");
     }
-    console.log("Post fetched successfully:", response.data.data);
     return response;
   } catch (error) {
     console.error("Error fetching post:", error.response?.data || error.message)

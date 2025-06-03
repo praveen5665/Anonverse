@@ -1,14 +1,16 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { getPost } from "@/services/postService";
+import { getCommentsByPostId } from "@/services/commentService";
 import PostCard from "@/components/Pages/PostCard";
-import CommentCard from "@/components/Pages/CommentCard"; 
+import CommentCard from "@/components/Pages/CommentCard";
 import CommentForm from "@/components/Pages/CommentForm";
 
 const PostPage = () => {
   const { postId } = useParams();
 
   const [post, setPost] = useState(null);
+  const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showCommentForm, setShowCommentForm] = useState(false);
@@ -16,8 +18,14 @@ const PostPage = () => {
   const fetchPostData = async () => {
     try {
       setLoading(true);
-      const response = await getPost(postId);
-      setPost(response.data.data);
+      const [postResponse, commentsResponse] = await Promise.all([
+        getPost(postId),
+        getCommentsByPostId(postId),
+      ]);
+      setPost(postResponse.data.data);
+      setComments(
+        Array.isArray(commentsResponse.data) ? commentsResponse.data : []
+      );
     } catch (error) {
       setError(
         error.response?.data?.message || error.message || "Failed to load post"
@@ -36,7 +44,6 @@ const PostPage = () => {
   const handleCommentAdded = (newComment) => {
     fetchPostData();
     setShowCommentForm(false);
-    console.log("New comment added, refetching post data.", newComment);
   };
 
   const handleCommentClick = () => {
@@ -60,26 +67,25 @@ const PostPage = () => {
           />
           <div className="mt-8 bg-white rounded-xl shadow-sm p-6 border border-gray-200">
             <h3 className="text-lg font-semibold mb-2">
-              Comments ({post.comments ? post.comments.length : 0})
+              Comments ({comments.length})
             </h3>
 
             {/* Show comment form if button clicked or if there are no comments */}
-            {(showCommentForm || !post.comments?.length) && (
+            {(showCommentForm || !comments.length) && (
               <CommentForm
                 postId={post._id}
-                onCommentAdded={(newComment) => {
-                  handleCommentAdded(newComment);
-                  setShowCommentForm(false);
-                }}
+                onCommentAdded={handleCommentAdded}
               />
             )}
 
             <div className="mt-6">
-              {post.comments && post.comments.length > 0 ? (
-                post.comments.map((comment) => (
+              {comments.length > 0 ? (
+                comments.map((comment) => (
                   <CommentCard
                     key={comment._id}
                     comment={comment}
+                    postId={post._id}
+                    onCommentAdded={handleCommentAdded}
                   />
                 ))
               ) : (

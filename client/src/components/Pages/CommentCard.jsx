@@ -8,7 +8,7 @@ import { voteOnComment } from "@/services/commentService";
 import CommentForm from "./CommentForm";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
-const CommentCard = ({ comment, postId }) => {
+const CommentCard = ({ comment, postId, indent = 0 }) => {
   const { user, token } = useUserContext();
 
   const {
@@ -18,7 +18,7 @@ const CommentCard = ({ comment, postId }) => {
     createdAt,
     upVotes = [],
     downVotes = [],
-    replies,
+    children = [],
   } = comment;
 
   const [showReplies, setShowReplies] = useState(false);
@@ -80,7 +80,7 @@ const CommentCard = ({ comment, postId }) => {
   };
 
   const handleReplySubmit = (newReply) => {
-    comment.replies = [...(comment.replies || []), newReply];
+    comment.children = [...(comment.children || []), newReply];
     setIsReplying(false);
   };
 
@@ -97,15 +97,21 @@ const CommentCard = ({ comment, postId }) => {
     }
   };
 
-  const authorUsername = authorId?.username || "Unknown User";
-  const authorLink = authorId?._id ? `/u/${authorUsername}` : "#";
+  const authorUsername =
+    authorId?.username || "Unknown User";
+  const authorAvatar = authorId?.avatarUrl || authorId?.author?.avatarUrl;
+  const authorIdValue = authorId?._id || authorId?.author?._id;
+  const authorLink = authorIdValue ? `/u/${authorUsername}` : "#";
 
   return (
-    <div className="mt-4 pt-4 border-t border-gray-200">
+    <div
+      className="mt-4 pt-4 border-t border-gray-200"
+      style={{ marginLeft: indent * 24 }}
+    >
       <div className="flex items-start space-x-3">
         <div className="flex-shrink-0">
           <Avatar className="h-8 w-8">
-            <AvatarImage src={authorId?.avatarUrl} alt={authorUsername} />
+            <AvatarImage src={authorAvatar} alt={authorUsername} />
             <AvatarFallback>
               {authorUsername?.slice(0, 2).toUpperCase() || "UN"}
             </AvatarFallback>
@@ -131,7 +137,7 @@ const CommentCard = ({ comment, postId }) => {
                 onClick={() => handleVote("up")}
                 className={`flex items-center transition-colors p-1 rounded-full ${
                   userVote === "up"
-                    ? "text-orange-500 bg-orange-100"
+                    ? "text-orange-500"
                     : "text-gray-400 hover:text-orange-500 hover:bg-orange-50"
                 }`}
                 aria-label="Upvote comment"
@@ -145,7 +151,7 @@ const CommentCard = ({ comment, postId }) => {
                 onClick={() => handleVote("down")}
                 className={`flex items-center transition-colors p-1 rounded-full ${
                   userVote === "down"
-                    ? "text-blue-500 bg-blue-100"
+                    ? "text-blue-500"
                     : "text-gray-400 hover:text-blue-500 hover:bg-blue-50"
                 }`}
                 aria-label="Downvote comment"
@@ -153,15 +159,15 @@ const CommentCard = ({ comment, postId }) => {
                 <BiDownvote size={18} />
               </button>
             </div>
-            {replies && replies.length > 0 && (
+            {children && children.length > 0 && (
               <button
                 onClick={() => setShowReplies(!showReplies)}
                 className="text-gray-500 hover:text-gray-700 font-medium"
               >
                 {showReplies
                   ? "Hide Replies"
-                  : `${replies.length} ${
-                      replies.length === 1 ? "Reply" : "Replies"
+                  : `${children.length} ${
+                      children.length === 1 ? "Reply" : "Replies"
                     }`}
               </button>
             )}
@@ -185,10 +191,15 @@ const CommentCard = ({ comment, postId }) => {
         </div>
       )}
 
-      {showReplies && replies && replies.length > 0 && (
-        <div className="ml-6 mt-3 pl-3 border-l-2 border-gray-200">
-          {replies.map((reply) => (
-            <CommentCard key={reply._id} comment={reply} />
+      {showReplies && children && children.length > 0 && (
+        <div className="mt-3 pl-3 border-l-2 border-gray-200">
+          {children.map((child) => (
+            <CommentCard
+              key={child._id}
+              comment={child}
+              postId={postId}
+              indent={indent + 1}
+            />
           ))}
         </div>
       )}

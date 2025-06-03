@@ -141,6 +141,8 @@ export const deleteComment = async (req, res) => {
 export const voteComment = async (req, res) => {
   const { commentId } = req.params;
   const { voteType } = req.body;
+  const userId = req.userId;
+  console.log(req);
 
   try {
     if (voteType !== null && !["up", "down"].includes(voteType)) {

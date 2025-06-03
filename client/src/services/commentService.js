@@ -42,6 +42,17 @@ export const createComment = async ({
   }
 };
 
+export const getCommentsByPostId = async (postId) => {
+  try {
+    const response = await axios.get(`${COMMENT_API_URL}/${postId}`);
+    return response.data;
+  } catch (error) {
+    throw new Error(error.response?.data?.message || "Failed to get comments");
+  }
+};
+
+
+
 export const voteOnComment = async (commentId, voteType, currentVote) => {
   try {
     const token = localStorage.getItem("token");
@@ -56,7 +67,7 @@ export const voteOnComment = async (commentId, voteType, currentVote) => {
       { voteType: newVoteType },
       {
         headers: {
-          "Content-Type": "application/json",
+        "Content-Type": "application/json",
           token: token,
         },
       }
