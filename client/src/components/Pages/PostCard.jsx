@@ -5,14 +5,29 @@ import { formatDistanceToNow } from "date-fns";
 import { handleVote as handleVoteAPI } from "@/services/postService";
 import { useUserContext } from "@/context/AuthContext";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const PostCard = ({ PostData, isPostPage, onCommentClick }) => {
+  const [imageLoading, setImageLoading] = useState(true);
+
+  if (!PostData) return null;
+
+  const {
+    title = "",
+    content = "",
+    image = "",
+    upVotes = [],
+    downVotes = [],
+    comments = [],
+    createdAt,
+    author = {},
+    community = {},
+  } = PostData;
+
+  const authorUsername = author?.username || "unknown";
+  const communityName = community?.name || "unknown";
+
   const { user, token } = useUserContext();
-  const { title, content, upVotes, downVotes } = PostData;
-  const authorUsername = PostData.authorId.username;
-  const community = PostData.community.name;
-  const createdAt = PostData.createdAt;
-  const noOfComments = PostData.comments.length;
   const navigate = useNavigate();
 
   const [userVote, setUserVote] = useState(
@@ -81,11 +96,27 @@ const PostCard = ({ PostData, isPostPage, onCommentClick }) => {
     });
   };
 
+  const handleCardClick = () => {
+    if (!isPostPage) {
+      navigate(`/post/${PostData._id}`);
+    }
+  };
+
+  const handleActionClick = (e) => {
+    e.stopPropagation(); // Prevent card click when clicking buttons
+  };
+
   return (
-    <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-      <div className="text-sm text-gray-500 mb-2">
-        <Link to={`/r/${community}`} className="hover:underline font-medium">
-          r/{community}
+    <div
+      onClick={handleCardClick}
+      className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 cursor-pointer hover:border-gray-300 transition-colors"
+    >
+      <div className="text-sm text-gray-500 mb-2" onClick={handleActionClick}>
+        <Link
+          to={`/r/${communityName}`}
+          className="hover:underline font-medium"
+        >
+          r/{communityName}
         </Link>
         <span className="mx-1">•</span>
         <span>Posted by </span>
@@ -99,11 +130,32 @@ const PostCard = ({ PostData, isPostPage, onCommentClick }) => {
       {/* Post content */}
 
       <h2 className="text-xl font-semibold mb-4">{title}</h2>
+
+      {image && (
+        <div className="relative mb-4 max-h-[512px] overflow-hidden rounded-lg">
+          {imageLoading && <Skeleton className="w-full h-64 rounded-lg" />}
+          <img
+            src={image}
+            alt={title}
+            className={`w-full object-contain max-h-[512px] ${
+              imageLoading ? "opacity-0" : "opacity-100"
+            }`}
+            onLoad={() => setImageLoading(false)}
+            onError={() => {
+              setImageLoading(false);
+            }}
+          />
+        </div>
+      )}
+
       <div className="prose max-w-none mb-4">{content}</div>
 
       <hr className="my-4" />
 
-      <div className="flex items-center justify-between">
+      <div
+        className="flex items-center justify-between"
+        onClick={handleActionClick}
+      >
         <div className="votes flex items-center space-x-2">
           <button
             onClick={() => handleVoteClick("up")}
@@ -132,7 +184,7 @@ const PostCard = ({ PostData, isPostPage, onCommentClick }) => {
             onClick={handleCommentClick}
             className="text-gray-500 hover:text-gray-700 transition-colors"
           >
-            {noOfComments} comment{noOfComments !== 1 ? "s" : ""}
+            {comments.length} comment{comments.length !== 1 ? "s" : ""}
           </button>
         </div>
         <button

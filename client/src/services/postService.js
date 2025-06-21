@@ -54,7 +54,7 @@ export const handleVote = async (postId, voteType, currentVote) => {
     const newVoteType = currentVote === voteType ? null : voteType;
 
     const response = await axios.post(
-      `${API_URL}${postId}/vote`, 
+      `${API_URL}${postId}/vote`,
       { voteType: newVoteType },
       {
         headers: {
@@ -75,14 +75,42 @@ export const handleVote = async (postId, voteType, currentVote) => {
   }
 };
 
-export const getPost = async(postId) =>{
+export const getPost = async (postId) => {
   try {
-      const response = await axios.get(`${API_URL}${postId}`);
-      if (!response.data.success) {
+    const response = await axios.get(`${API_URL}${postId}`);
+    if (!response.data.success) {
       throw new Error(response.data.message || "Failed to fetch post");
     }
     return response;
   } catch (error) {
-    console.error("Error fetching post:", error.response?.data || error.message)
+    console.error(
+      "Error fetching post:",
+      error.response?.data || error.message
+    );
+  }
+};
+
+export const getFilteredPosts = async (
+  timeFilter = "all",
+  sortFilter = "hot",
+  options = {}
+) => {
+  try {
+    const response = await axios.get(`${API_URL}filter`, {
+      params: {
+        timeFilter,
+        sortFilter,
+        ...options,
+      },
+    });
+
+    if (!response.data?.success) {
+      throw new Error(
+        response.data?.message || "Failed to fetch filtered posts"
+      );
+    }
+    return response;
+  } catch (error) {
+    throw error.response?.data || error;
   }
 };

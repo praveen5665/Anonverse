@@ -4,45 +4,63 @@ import { getCommunityByName } from "@/services/communityService";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
-import { getPostsByCommunityId } from "@/services/postService";
+import { getFilteredPosts } from "@/services/postService";
 import PostCard from "./PostCard";
+import PostFilter from "@/components/Common/PostFilter";
 
 const CommunityPage = () => {
+  const [timeFilter, setTimeFilter] = useState("all");
+  const [sortFilter, setSortFilter] = useState("hot");
   const { communityName } = useParams();
   const [community, setCommunity] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [postError, setPostError] = useState(null);
   const [postLoading, setPostLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-    const fetchCommunityAndPosts = async () => {
+    const fetchCommunity = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        setLoading(true);
         const communityResponse = await getCommunityByName(communityName);
         const communityData = communityResponse.data.data;
         setCommunity(communityData);
-
-        const postsResponse = await getPostsByCommunityId(communityData._id);
-        if (!postsResponse.data.success) {
-          throw new Error(postsResponse.data.message || "Failed to load posts");
-        }
-        console.log("Posts fetched:", postsResponse.data.data);
-        setPosts(postsResponse.data.data);
       } catch (error) {
-        setError(error.response?.data?.message || "Failed to load data");
-        console.error("Failed to load data:", error);
+        setError(
+          error.response?.data?.message || "Failed to load community data"
+        );
+        console.error("Failed to load community data:", error);
       } finally {
         setLoading(false);
-        setPostLoading(false);
       }
     };
-
     if (communityName) {
-      fetchCommunityAndPosts();
+      fetchCommunity();
     }
   }, [communityName]);
+
+  const fetchPosts = async () => {
+    if (!community?._id) return;
+    setPostLoading(true);
+    try {
+      const response = await getFilteredPosts(timeFilter, sortFilter, {
+        communityId: community._id,
+      });
+      setPosts(response.data.data);
+    } catch (error) {
+      setError(error.response?.data?.message || "Failed to load posts");
+      console.error("Failed to load posts:", error);
+    } finally {
+      setPostLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (community?._id) {
+      fetchPosts();
+    }
+  }, [community?._id, timeFilter, sortFilter]);
 
   if (loading) {
     return (
@@ -126,7 +144,10 @@ const CommunityPage = () => {
       <div className="bg-gradient-to-r rounded-2xl shadow-sm p-6 mb-6 border border-gray-200 transition-all hover:shadow-md">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
           <Avatar className="h-20 w-20 border-2 border-white shadow-md rounded-full overflow-hidden">
-            <AvatarImage src={community.avatar} className="rounded-full h-full w-full flex items-center justify-center object-cover" />
+            <AvatarImage
+              src={community.avatar}
+              className="rounded-full h-full w-full flex items-center justify-center object-cover"
+            />
             <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-medium rounded-full h-full w-full flex items-center justify-center">
               {community.name.slice(0, 2).toUpperCase()}
             </AvatarFallback>
@@ -173,47 +194,46 @@ const CommunityPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* main content area */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
-              Community Posts
-            </h2>
+          <div className="rounded-xl shadow-sm  min-h-[500px] min-w-full transition-all duration-300">
+            <PostFilter
+              timeFilter={timeFilter}
+              sortFilter={sortFilter}
+              onTimeFilterChange={setTimeFilter}
+              onSortFilterChange={setSortFilter}
+            />
 
-            {postLoading ? (
-              // Loading state
-              <div className="space-y-4">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="animate-pulse">
-                    <Skeleton className="h-40 w-full rounded-lg" />
-                  </div>
-                ))}
-              </div>
-            ) : postError ? (
-              // Error state
-              <div className="text-center py-8">
-                <p className="text-red-500">{postError}</p>
-                <Button onClick={fetchPosts} variant="outline" className="mt-4">
-                  Try Again
-                </Button>
-              </div>
-            ) : posts.length === 0 ? (
-              // Empty state
-              <div className="text-center py-12">
-                <p className="text-gray-500">No posts yet</p>
-                <Button
-                  variant="outline"
-                  className="mt-4 text-blue-600 hover:bg-blue-50 px-6 py-2 rounded-full transition-colors"
-                >
-                  Create first post
-                </Button>
-              </div>
-            ) : (
-              // Posts list
-              <div className="space-y-4">
-                {posts.map((post) => (
-                  <PostCard key={post._id} PostData={post} />
-                ))}
-              </div>
-            )}
+            <div className="min-h-[400px] relative">
+              {postLoading ? (
+                <div className="space-y-4 absolute w-full">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="animate-pulse">
+                      <Skeleton className="h-40 w-full rounded-lg" />
+                    </div>
+                  ))}
+                </div>
+              ) : error ? (
+                <div className="text-center py-8">
+                  <p className="text-red-500">{error}</p>
+                  <Button
+                    onClick={fetchPosts}
+                    variant="outline"
+                    className="mt-4"
+                  >
+                    Try Again
+                  </Button>
+                </div>
+              ) : posts.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-gray-500">No posts yet</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {posts.map((post) => (
+                    <PostCard key={post._id} PostData={post} />
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
         {/* sidebar */}
@@ -273,7 +293,10 @@ const CommunityPage = () => {
                 {community.moderators.map((mod, index) => (
                   <div key={index} className="flex items-center gap-3">
                     <Avatar className="h-8 w-8 rounded-full overflow-hidden">
-                      <AvatarImage src={mod.avatar} className="rounded-full h-full w-full object-cover" />
+                      <AvatarImage
+                        src={mod.avatar}
+                        className="rounded-full h-full w-full object-cover"
+                      />
                       <AvatarFallback className="rounded-full h-full w-full flex items-center justify-center text-xs">
                         {mod.username.slice(0, 2).toUpperCase()}
                       </AvatarFallback>

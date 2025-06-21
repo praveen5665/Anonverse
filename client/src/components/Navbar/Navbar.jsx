@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import SearchBar from "./SearchBar";
 import { MessageCircleMore, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import CreatePost from "./CreatePost";
@@ -17,18 +17,7 @@ const Navbar = () => {
           Anonverse
         </Link>
 
-        <form
-          action=""
-          className="flex flex-1 max-w-md items-center bg-my_bg rounded-md px-2"
-        >
-          <Search className="w-5 h-5 text-gray-500" />
-          <input
-            type="search"
-            className="w-full bg-transparent p-2 focus:outline-none"
-            id="site-search"
-            placeholder="Search"
-          />
-        </form>
+        <SearchBar />
 
         <div className="flex items-center gap-4">
           {user ? (
