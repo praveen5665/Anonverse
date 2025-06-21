@@ -117,3 +117,25 @@ export const getFilteredPosts = async (
     throw error.response?.data || error;
   }
 };
+
+export const deletePost = async (postId) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.delete(`${API_URL}${postId}`, {
+      headers: {
+        token: token,
+      },
+    });
+
+    if (!response.data.success) {
+      throw new Error(response.data.message || "Failed to delete post");
+    }
+    return response;
+  } catch (error) {
+    console.error(
+      "Error deleting post:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+}

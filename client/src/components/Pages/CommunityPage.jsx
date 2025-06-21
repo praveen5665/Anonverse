@@ -62,7 +62,6 @@ const CommunityPage = () => {
     if (community?._id) {
       fetchPosts();
     }
-    console.log("Checking membership for community:", member);
   }, [community?._id, timeFilter, sortFilter]);
 
   useEffect(() => {

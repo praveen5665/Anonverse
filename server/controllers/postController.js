@@ -133,8 +133,8 @@ export const getPost = async (req, res) => {
 
 export const deletePost = async (req, res) => {
   try {
-    const { id } = req.params;
-    const post = await Post.findById(id);
+    const { postId } = req.params;
+    const post = await Post.findById(postId);
     if (!post) {
       return res.status(404).json({
         success: false,
@@ -147,7 +147,7 @@ export const deletePost = async (req, res) => {
         message: "You are not authorized to delete this post",
       });
     }
-    await Post.findByIdAndDelete(id);
+    await Post.findByIdAndDelete(postId);
     res.status(200).json({
       success: true,
       message: "Post deleted successfully",
@@ -206,7 +206,7 @@ export const getFilteredPosts = async (req, res) => {
           from: "users",
           localField: "authorId",
           foreignField: "_id",
-          as: "author",
+          as: "authorId",
         },
       },
       {
@@ -238,7 +238,7 @@ export const getFilteredPosts = async (req, res) => {
             ? { voteScore: -1 }
             : { engagementScore: -1 }, // hot
       },
-      { $unwind: "$author" },
+      { $unwind: "$authorId" },
       { $unwind: "$community" },
       {
         $project: {
@@ -250,8 +250,8 @@ export const getFilteredPosts = async (req, res) => {
           upVotes: 1,
           downVotes: 1,
           comments: 1,
-          "author._id": 1,
-          "author.username": 1,
+          "authorId._id": 1,
+          "authorId.username": 1,
           "community._id": 1,
           "community.name": 1,
         },

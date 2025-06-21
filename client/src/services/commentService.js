@@ -85,3 +85,29 @@ export const voteOnComment = async (commentId, voteType, currentVote) => {
     throw error;
   }
 };
+
+export const deleteComment = async (commentId) => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      throw new Error("Authentication token not found. Please login.");
+    }
+
+    const response = await axios.delete(`${COMMENT_API_URL}/${commentId}`, {
+      headers: {
+        token: token,
+      },
+    });
+
+    if (!response.data.success) {
+      throw new Error(response.data.message || "Failed to delete comment");
+    }
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error deleting comment:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};

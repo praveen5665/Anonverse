@@ -1,14 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BiUpvote, BiDownvote } from "react-icons/bi";
+import { BiUpvote, BiDownvote, BiTrash } from "react-icons/bi";
 import { formatDistanceToNow } from "date-fns";
-import { handleVote as handleVoteAPI } from "@/services/postService";
+import {
+  handleVote as handleVoteAPI,
+  deletePost,
+} from "@/services/postService";
 import { useUserContext } from "@/context/AuthContext";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "../ui/button";
 
 const PostCard = ({ PostData, isPostPage, onCommentClick }) => {
   const [imageLoading, setImageLoading] = useState(true);
+  console.log("Post data:", PostData);
 
   if (!PostData) return null;
 
@@ -20,11 +25,11 @@ const PostCard = ({ PostData, isPostPage, onCommentClick }) => {
     downVotes = [],
     comments = [],
     createdAt,
-    author = {},
+    authorId = {},
     community = {},
   } = PostData;
-
-  const authorUsername = author?.username || "unknown";
+  console.log("authorId:", authorId);
+  const authorUsername = authorId?.username || "unknown";
   const communityName = community?.name || "unknown";
 
   const { user, token } = useUserContext();
@@ -61,7 +66,9 @@ const PostCard = ({ PostData, isPostPage, onCommentClick }) => {
 
   const handleVoteClick = async (voteType) => {
     if (!user || !token) {
-      navigate("/login");
+      toast.error("You must be logged in to vote.", {
+        duration: 1300,
+      });
       return;
     }
 
@@ -78,6 +85,28 @@ const PostCard = ({ PostData, isPostPage, onCommentClick }) => {
       console.error("Error while voting:", error);
     }
   };
+
+  const handleDeletePost = async () => {
+  try {
+    const response = await deletePost(PostData._id);
+
+    if (response?.success) {
+      toast.success("Post deleted successfully!", { duration: 1300 });
+
+      if (isPostPage) {
+        navigate(-1);
+      } else {
+        window.location.reload();
+      }
+    } else {
+      throw new Error("Delete request failed");
+    }
+  } catch (error) {
+    console.error("Delete error:", error);
+    toast.error("Failed to delete post.", { duration: 1300 });
+  }
+};
+
 
   const handleCommentClick = (e) => {
     e.preventDefault();
@@ -109,22 +138,36 @@ const PostCard = ({ PostData, isPostPage, onCommentClick }) => {
   return (
     <div
       onClick={handleCardClick}
-      className="bg-white rounded-xl shadow-sm p-6 border border-gray-200 cursor-pointer hover:border-gray-300 transition-colors"
+      className={`bg-white rounded-xl shadow-sm p-6 border border-gray-200 ${
+        isPostPage ? "cursor-default" : "cursor-pointer"
+      } hover:border-gray-300 transition-colors`}
     >
-      <div className="text-sm text-gray-500 mb-2" onClick={handleActionClick}>
-        <Link
-          to={`/r/${communityName}`}
-          className="hover:underline font-medium"
-        >
-          r/{communityName}
-        </Link>
-        <span className="mx-1">•</span>
-        <span>Posted by </span>
-        <Link to={`/u/${authorUsername}`} className="hover:underline">
-          u/{authorUsername}
-        </Link>
-        <span className="mx-1">•</span>
-        <span>{formatDistanceToNow(new Date(createdAt))} ago</span>
+      <div className="flex justify-between items-center text-sm text-gray-500 mb-2" onClick={handleActionClick}>
+        <div>
+          <Link
+            to={`/r/${communityName}`}
+            className="hover:underline font-medium"
+          >
+            r/{communityName}
+          </Link>
+          <span className="mx-1">•</span>
+          <span>Posted by </span>
+          <Link to={`/u/${authorUsername}`} className="hover:underline">
+            u/{authorUsername}
+          </Link>
+          <span className="mx-1">•</span>
+          <span>{formatDistanceToNow(new Date(createdAt))} ago</span>
+        </div>
+        {user?.id === authorId?._id && (
+          <Button
+            variant="destructive"
+            onClick={handleDeletePost}
+            className="ml-4"
+          >
+            <BiTrash className="mr-2" />
+            Delete
+          </Button>
+        )}
       </div>
 
       {/* Post content */}
