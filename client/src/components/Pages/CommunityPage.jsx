@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { getCommunityByName } from "@/services/communityService";
+import { getCommunityByName, isMember, joinCommunity, leaveCommunity } from "@/services/communityService";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
 import { getFilteredPosts } from "@/services/postService";
 import PostCard from "./PostCard";
 import PostFilter from "@/components/Common/PostFilter";
+import { toast } from "sonner";
 
 const CommunityPage = () => {
   const [timeFilter, setTimeFilter] = useState("all");
@@ -17,6 +18,7 @@ const CommunityPage = () => {
   const [postLoading, setPostLoading] = useState(true);
   const [error, setError] = useState(null);
   const [posts, setPosts] = useState([]);
+  const [member, setMember] = useState(false);
 
   useEffect(() => {
     const fetchCommunity = async () => {
@@ -38,7 +40,7 @@ const CommunityPage = () => {
     if (communityName) {
       fetchCommunity();
     }
-  }, [communityName]);
+  }, [communityName, member]);
 
   const fetchPosts = async () => {
     if (!community?._id) return;
@@ -60,7 +62,40 @@ const CommunityPage = () => {
     if (community?._id) {
       fetchPosts();
     }
+    console.log("Checking membership for community:", member);
   }, [community?._id, timeFilter, sortFilter]);
+
+  useEffect(() => {
+    const checkMembership = async () => {
+      if (!community?._id) return;      
+      try {
+        const response = await isMember(community._id);
+        setMember(response.isMember);
+      } catch (error) {
+        console.error("Failed to check membership:", error);
+        setMember(false);
+      }
+    };
+    checkMembership();
+  }, [community?._id, member]);
+
+  const handleJoinCommunity = async () => {
+    if (!community?._id) return;
+    try {
+      if (member) {
+        await leaveCommunity(community._id);
+        setMember(false);
+        toast(`You have left r/${community.name}`);
+        return;
+      }
+      await joinCommunity(community._id);
+      setMember(true);
+      toast(`You have joined r/${community.name}`);
+    } catch (error) {
+      console.error("Failed to join community:", error);
+      toast("Failed to join community. Please try again later.");
+    }
+  }
 
   if (loading) {
     return (
@@ -162,8 +197,13 @@ const CommunityPage = () => {
                   {community.description}
                 </p>
               </div>
-              <Button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full transition-colors shadow-sm">
-                Join Community
+              <Button 
+                onClick={handleJoinCommunity}
+                className={`${
+                  member ? "bg-red hover:bg-red-700" : "bg-blue-600 hover:bg-blue-700"
+                } text-white px-6 py-2 rounded-full transition-colors shadow-sm`}
+              >
+                {member ? "Leave Community" : "Join Community"}
               </Button>
             </div>
             {/* Community Stats */}

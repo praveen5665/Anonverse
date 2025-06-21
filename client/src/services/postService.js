@@ -11,16 +11,19 @@ export const createPost = async (postData) => {
     });
 
     if (!response.data.success) {
+      console.error("Failed to create post:", response.data.message);
       throw new Error(response.data.message || "Failed to create post");
     }
-
-    return response;
+    return response;  
   } catch (error) {
     console.error(
       "Error creating post:",
       error.response?.data || error.message
     );
-    throw error;
+    throw {
+      message: error.response?.data?.message || "Failed to create post. Please try again.",
+      error
+    };
   }
 };
 export const getPostsByCommunityId = async (communityId) => {

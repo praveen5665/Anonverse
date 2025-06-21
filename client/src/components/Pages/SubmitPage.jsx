@@ -22,7 +22,7 @@ const SubmitPage = () => {
   useEffect(() => {
     const fetchCommunity = async () => {
       try {
-        const response = await getCommunityByName(communityName ? communityName.toLowerCase() : '');
+        const response = await getCommunityByName(communityName ? communityName : '');
         // console.log(response.data.data._id);
         setCommunityId(response.data.data._id);
       } catch (error) {
@@ -86,38 +86,40 @@ const SubmitPage = () => {
       return false;
     }
     return true;
-  };
-
+  };  
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
+    setSuccess(false);
+    
     if(!validateForm()) {
       return;
     }
-    if(!communityId) { 
+    
+    if(!communityId) {
+      setError("Community not found. Please try again.");
       return;
     }
 
     setIsSubmitting(true);
-    setError(null);
-    setSuccess(false);
-
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("content", content);
-    formData.append("community", communityId);
-    if (image) {
-      formData.append("image", image);
-    }
 
     try {
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("content", content);
+      formData.append("community", communityId);
+      if (image) {
+        formData.append("image", image);
+      }
+
       const response = await createPost(formData);
       if (!response.data.success) {
-        throw new Error("Failed to create post");
+        throw new Error(response.data.message || "Failed to create post");
       }
       setSuccess(true);
-      navigate(`/r/${communityName ? communityName.toLowerCase() : ''}`);
+      navigate(`/r/${communityName ? communityName : ''}`);
     } catch (error) {
-      setError(error.message);
+      setError(error.message || "Failed to create post. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -126,7 +128,23 @@ const SubmitPage = () => {
   return (
     <div className="max-w-3xl mx-auto">
       <div className="bg-white rounded-lg shadow p-6">
-        <h1 className="text-2xl font-bold mb-6">Create a post in r/{communityName ? communityName.toLowerCase() : ''}</h1>
+        <h1 className="text-2xl font-bold mb-6">Create a post in r/{communityName ? communityName : ''}</h1>        
+        {error && (
+          <div className="bg-rose-50 border-l-4 border-red-400 p-4 mb-6">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              
+              <div className="ml-3">
+                <p className="text-sm text-rose-700">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <form className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="title">Title</Label>
@@ -191,11 +209,11 @@ const SubmitPage = () => {
             </div>
           </div>
 
-          {error && (
-            <div className="bg-red-50 text-red-600 px-4 py-2 rounded-md">
+          {/* {error && (
+            <div className="bg-red text-red-600 px-4 py-2 rounded-md">
               {error}
             </div>
-          )}
+          )} */}
           {success && (
             <div className="bg-green-50 text-green-600 px-4 py-2 rounded-md">
               Post created successfully!
