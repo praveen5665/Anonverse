@@ -23,11 +23,13 @@ const App = () => {
         </Route>
 
         <Route element={ <RootLayout />}>
-          <Route index element = {<HomePage />} />
+          <Route index element = {<HomePage key="home" />} />
           <Route path='r/:communityName' element = {<CommunityPage />} />
           <Route path='r/:communityName/submit' element={<SubmitPage />} />
           <Route path='u/:username' element={<ProfilePage />} />
           <Route path='post/:postId' element={<PostPage />} />
+          <Route path='popular' element={<HomePage key="popular" initialSortFilter='hot' initialTimeFilter='week' />} />
+          <Route path='all' element={<HomePage key="all" initialSortFilter='new' initialTimeFilter='all' />} />
           <Route path='*' element={<Navigate to={'/'} replace />} />
         </Route>
       </Routes>

@@ -5,12 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import PostFilter from "@/components/Common/PostFilter";
 
-const HomePage = () => {
+const HomePage = ({ initialTimeFilter, initialSortFilter }) => {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [timeFilter, setTimeFilter] = useState("all");
-  const [sortFilter, setSortFilter] = useState("hot");
+  const [error, setError] = useState(null);  const [timeFilter, setTimeFilter] = useState(initialTimeFilter || "all");
+  const [sortFilter, setSortFilter] = useState(initialSortFilter || "hot");
+
+  useEffect(() => {
+    setTimeFilter(initialTimeFilter || "all");
+    setSortFilter(initialSortFilter || "hot");
+  }, [initialTimeFilter, initialSortFilter]);
 
   useEffect(() => {
     fetchPosts();

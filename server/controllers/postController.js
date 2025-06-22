@@ -1,6 +1,5 @@
 import Post from "../models/Post.js";
 import cloudinary from "../config/cloudinary.js";
-import upload from "../middleware/upload.js";
 import Community from "../models/Community.js";
 import mongoose from "mongoose";
 
