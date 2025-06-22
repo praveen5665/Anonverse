@@ -1,14 +1,14 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import React from "react";
 
-const CommunityAvatar = () => {
+const CommunityAvatar = ({ avatar, name }) => {
   return (
-    <div className="bg-gray-400 w-8 h-8 rounded-2xl">
-      <Avatar>
-  <AvatarImage src="https://github.com/shadcn.png" className="w-8 h-8 rounded-full" />
-  <AvatarFallback>CN</AvatarFallback>
-</Avatar>
-    </div>
+    <Avatar className="h-8 w-8 rounded-full">
+      <AvatarImage src={avatar} alt={name} className="object-cover" />
+      <AvatarFallback className="bg-gradient-to-br from-orange-300 to-orange-400 text-white text-xs font-medium">
+        {name ? name.slice(0, 2).toUpperCase() : "CM"}
+      </AvatarFallback>
+    </Avatar>
   );
 };
 

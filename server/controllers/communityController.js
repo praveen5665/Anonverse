@@ -293,3 +293,19 @@ export const isMember = async (req, res) => {
     });
   }
 };
+
+export const getTopCommunities = async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 5;
+    
+    const topCommunities = await Community.find()
+        .sort({ members: -1 }) 
+        .limit(limit)
+        .select('name avatar members'); 
+    
+    res.json(topCommunities);
+  } catch (error) {
+    console.error('Error fetching top communities:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { BiUpvote, BiDownvote } from "react-icons/bi";
+import { BiUpvote, BiDownvote , BiTrash} from "react-icons/bi";
 import { formatDistanceToNow } from "date-fns";
 import { useUserContext } from "@/context/AuthContext";
 import { toast } from "sonner";
-import { voteOnComment } from "@/services/commentService";
+import { voteOnComment, deleteComment } from "@/services/commentService";
 import CommentForm from "./CommentForm";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
@@ -19,6 +19,7 @@ const CommentCard = ({ comment, postId, indent = 0 }) => {
     upVotes = [],
     downVotes = [],
     children = [],
+    isDeleted
   } = comment;
 
   const [showReplies, setShowReplies] = useState(false);
@@ -45,12 +46,27 @@ const CommentCard = ({ comment, postId, indent = 0 }) => {
     setCurrentVotes({ up: upVotes.length, down: downVotes.length });
   }, [upVotes, downVotes, user]);
 
+    
+  const handledelete = async () => {
+    try {
+      const response = await deleteComment(_id);   
+        toast.success("Comment deleted successfully");
+        window.location.reload();
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      toast.error(error.message || "Failed to delete comment");
+    }
+  };
+
   const handleVote = async (voteType) => {
     if (!user || !token) {
-      toast("Login to Vote");
+      toast.error("Login to Vote");
       return;
     }
-
+    if(isDeleted) {
+      toast.error("Cannot vote on a deleted comment");
+      return;
+    }
     try {
       const result = await voteOnComment(_id, voteType, userVote);
       const { upVotes, downVotes } = result;
@@ -96,12 +112,12 @@ const CommentCard = ({ comment, postId, indent = 0 }) => {
       return "Invalid date";
     }
   };
-
+    
   const authorUsername =
-    authorId?.username || "Unknown User";
-  const authorAvatar = authorId?.avatarUrl || authorId?.author?.avatarUrl;
-  const authorIdValue = authorId?._id || authorId?.author?._id;
-  const authorLink = authorIdValue ? `/u/${authorUsername}` : "#";
+    isDeleted ? "Deleted User" : authorId?.username || "Unknown User";
+  const authorAvatar = isDeleted ? "" : authorId?.avatarUrl || authorId?.author?.avatarUrl;
+  const authorIdValue = isDeleted ? null : authorId?._id || authorId?.author?._id;
+  const authorLink = isDeleted ? "#" : `/u/${authorUsername}`;
 
   return (
     <div
@@ -118,7 +134,8 @@ const CommentCard = ({ comment, postId, indent = 0 }) => {
           </Avatar>
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-xs text-gray-500">
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-gray-500">
             <Link
               to={authorLink}
               className="font-medium text-gray-900 hover:underline"
@@ -128,6 +145,16 @@ const CommentCard = ({ comment, postId, indent = 0 }) => {
             <span className="mx-1">•</span>
             <span>{formatDate(createdAt)}</span>
           </p>
+            {!isDeleted && user && user.id ===  authorIdValue && (
+              <button
+                onClick={handledelete}
+                className="text-gray-400 hover:text-red"
+                aria-label="Delete comment"
+              >
+                <BiTrash size={18} />
+              </button>
+            )}
+          </div>
           <div className="mt-1 text-sm text-gray-700">
             <p>{content}</p>
           </div>

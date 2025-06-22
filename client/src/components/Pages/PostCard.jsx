@@ -13,7 +13,6 @@ import { Button } from "../ui/button";
 
 const PostCard = ({ PostData, isPostPage, onCommentClick }) => {
   const [imageLoading, setImageLoading] = useState(true);
-  console.log("Post data:", PostData);
 
   if (!PostData) return null;
 
@@ -28,7 +27,6 @@ const PostCard = ({ PostData, isPostPage, onCommentClick }) => {
     authorId = {},
     community = {},
   } = PostData;
-  console.log("authorId:", authorId);
   const authorUsername = authorId?.username || "unknown";
   const communityName = community?.name || "unknown";
 
@@ -174,8 +172,14 @@ const PostCard = ({ PostData, isPostPage, onCommentClick }) => {
 
       <h2 className="text-xl font-semibold mb-4">{title}</h2>
 
+      <div className="prose max-w-none mb-4">{content}</div>
+
+      
+
       {image && (
+        
         <div className="relative mb-4 max-h-[512px] overflow-hidden rounded-lg">
+          <hr className="my-4" />
           {imageLoading && <Skeleton className="w-full h-64 rounded-lg" />}
           <img
             src={image}
@@ -191,7 +195,6 @@ const PostCard = ({ PostData, isPostPage, onCommentClick }) => {
         </div>
       )}
 
-      <div className="prose max-w-none mb-4">{content}</div>
 
       <hr className="my-4" />
 

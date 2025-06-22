@@ -48,11 +48,21 @@ export const isMember = async (communityId) => {
     const response = await axios.get(`${API_URL}/member/${communityId}`, {
       headers: {
         token: token,
-      }
+      },
     });
     return response.data;
   } catch (error) {
     console.error("Error checking membership:", error);
     throw error;
+  }
+};
+
+export const getTopCommunities = async (limit = 5) => {
+  try {
+    const response = await axios.get(`${API_URL}/top?limit=${limit}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching top communities:", error);
+    return [];
   }
 };

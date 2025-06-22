@@ -88,3 +88,20 @@ export const getCurrentUser = async(req, res) => {
         res.status(500).json({ message: 'Server error' });
     }
 }
+
+export const getUserByUsername = async (req, res) => {
+    try {
+        const { username } = req.params;
+        console.log(`Fetching user with username: ${username}`);
+        const user = await User.findOne({ username }).select('-password');
+        
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json(user);
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ message: 'Server error' });
+    }
+};

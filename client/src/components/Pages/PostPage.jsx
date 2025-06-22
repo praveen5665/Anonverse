@@ -59,7 +59,6 @@ const PostPage = () => {
         </p>
       )}
       {post && (
-        
         <>
           <PostCard
             PostData={post}

@@ -118,7 +118,7 @@ export const deleteComment = async (req, res) => {
         message: "Comment not found",
       });
     }
-    if (comment.authorId.toString() !== userId.toString()) {
+    if (comment.authorId?.toString() !== userId.toString()) {
       return res.status(403).json({
         success: false,
         message: "You are not authorized to delete this comment",
@@ -126,9 +126,11 @@ export const deleteComment = async (req, res) => {
     }
     comment.isDeleted = true;
     comment.content = "This comment has been deleted";
-    comment.authorId = null;
     await comment.save();
-    res.status(204).send();
+    res.status(204).json({
+      success: true,
+      message: "Comment deleted successfully",
+    })
   } catch (error) {
     console.error("Error deleting comment:", error);
     res.status(500).json({

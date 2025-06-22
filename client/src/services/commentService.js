@@ -98,12 +98,13 @@ export const deleteComment = async (commentId) => {
         token: token,
       },
     });
-
-    if (!response.data.success) {
-      throw new Error(response.data.message || "Failed to delete comment");
+    if (response.status !== 204) {
+      throw new Error("Failed to delete comment");
     }
+    console.log("Comment deleted successfully");
     return response.data;
   } catch (error) {
+
     console.error(
       "Error deleting comment:",
       error.response?.data || error.message
