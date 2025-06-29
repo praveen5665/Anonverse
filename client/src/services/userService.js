@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000/api/auth';
+const API_BASE_URL = 'https://anonverse.onrender.com/api/auth';
 
 export const getUserProfile = async (username) => {
   try {

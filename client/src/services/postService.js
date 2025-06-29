@@ -1,5 +1,5 @@
 import axios from "axios";
-const API_URL = "http://localhost:5000/api/post/";
+const API_URL = "https://anonverse.onrender.com/api/post/";
 
 export const createPost = async (postData) => {
   try {

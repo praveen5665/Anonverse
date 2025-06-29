@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/search";
+const API_URL = "https://anonverse.onrender.com/api/search";
 
 export const searchContent = async (query, community = null) => {
   try {

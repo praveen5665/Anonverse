@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const COMMENT_API_URL = "http://localhost:5000/api/comment";
+const COMMENT_API_URL = "https://anonverse.onrender.com/api/comment";
 
 export const createComment = async ({
   postId,
