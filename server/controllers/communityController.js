@@ -309,3 +309,27 @@ export const getTopCommunities = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+export const getUserCommunities = async (req, res) => {
+  try {
+    const userId = req.userId;
+    
+    const userCommunities = await Community.find({
+      members: userId
+    })
+    .select('name avatar members')
+    .sort({ name: 1 });
+    
+    res.status(200).json({
+      success: true,
+      data: userCommunities
+    });
+  } catch (error) {
+    console.error('Error fetching user communities:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to fetch user communities',
+      error: error.message 
+    });
+  }
+};

@@ -156,7 +156,7 @@ const PostCard = ({ PostData, isPostPage, onCommentClick }) => {
           <span className="mx-1">•</span>
           <span>{formatDistanceToNow(new Date(createdAt))} ago</span>
         </div>
-        {user?.id === authorId?._id && (
+        {/* {user?.id === authorId?._id && (
           <Button
             variant="destructive"
             onClick={handleDeletePost}
@@ -165,7 +165,7 @@ const PostCard = ({ PostData, isPostPage, onCommentClick }) => {
             <BiTrash className="mr-2" />
             Delete
           </Button>
-        )}
+        )} */}
       </div>
 
       {/* Post content */}

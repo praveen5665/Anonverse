@@ -145,7 +145,7 @@ const CommentCard = ({ comment, postId, indent = 0 }) => {
             <span className="mx-1">•</span>
             <span>{formatDate(createdAt)}</span>
           </p>
-            {!isDeleted && user && user.id ===  authorIdValue && (
+            {/* {!isDeleted && user && user.id ===  authorIdValue && (
               <button
                 onClick={handledelete}
                 className="text-gray-400 hover:text-red"
@@ -153,7 +153,7 @@ const CommentCard = ({ comment, postId, indent = 0 }) => {
               >
                 <BiTrash size={18} />
               </button>
-            )}
+            )} */}
           </div>
           <div className="mt-1 text-sm text-gray-700">
             <p>{content}</p>

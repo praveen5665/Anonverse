@@ -163,12 +163,25 @@ export const deletePost = async (req, res) => {
 
 export const getFilteredPosts = async (req, res) => {
   try {
-    const { timeFilter = "all", sortFilter = "hot", communityId } = req.query;
+    const { timeFilter = "all", sortFilter = "hot", communityId, author, authorId } = req.query;
     let query = {};
 
     // Add community filter if provided
     if (communityId) {
       query.community = new mongoose.Types.ObjectId(communityId);
+    }
+
+    // Add author filter if provided
+    if (authorId) {
+      query.authorId = new mongoose.Types.ObjectId(authorId);
+    } else if (author) {
+      const user = await mongoose.model('User').findOne({ username: author });
+      if (user) {
+        query.authorId = user._id;
+      } else {
+        // No such user, return empty
+        return res.status(200).json({ success: true, data: [] });
+      }
     }
 
     // Time-based filtering with proper date handling

@@ -1,22 +1,22 @@
-import { createContext, useState, useEffect, useContext } from 'react';
-import {jwtDecode} from 'jwt-decode';
-import { useNavigate } from 'react-router-dom';
+import { createContext, useState, useEffect, useContext } from "react";
+import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token') || '');
+  const [token, setToken] = useState(localStorage.getItem("token") || "");
   const navigate = useNavigate();
 
   const isTokenExpired = (token) => {
     if (!token) return true;
     try {
       const decoded = jwtDecode(token);
-      const currentTime = Date.now() / 1000; // in seconds
+      const currentTime = Date.now() / 1000; 
       return decoded.exp < currentTime;
     } catch (error) {
-      console.error('Invalid token:', error);
+      console.error("Invalid token:", error);
       return true;
     }
   };
@@ -26,7 +26,7 @@ export const AuthProvider = ({ children }) => {
       if (isTokenExpired(token)) {
         logout();
       } else {
-        const storedUser = JSON.parse(localStorage.getItem('user'));
+        const storedUser = JSON.parse(localStorage.getItem("user"));
         setUser(storedUser);
       }
     }
@@ -35,16 +35,16 @@ export const AuthProvider = ({ children }) => {
   const login = (newToken, userData) => {
     setToken(newToken);
     setUser(userData);
-    localStorage.setItem('token', newToken);
-    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem("token", newToken);
+    localStorage.setItem("user", JSON.stringify(userData));
   };
 
   const logout = () => {
-    setToken('');
+    setToken("");
     setUser(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/login'); 
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/popular");
   };
 
   return (

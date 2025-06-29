@@ -8,6 +8,7 @@ import {
   joinCommunity,
   leaveCommunity,
   getTopCommunities,
+  getUserCommunities,
 } from "../controllers/communityController.js";
 import upload from "../middleware/upload.js";
 import { auth } from "../middleware/auth.js";
@@ -15,6 +16,7 @@ import { auth } from "../middleware/auth.js";
 const router = express.Router();
 
 router.get("/top", getTopCommunities);
+router.get("/user", auth, getUserCommunities);
 router.post("/", auth, upload.community.single("avatar"), createCommunity);
 router.get("/:communityName", getCommunity);
 router.put(

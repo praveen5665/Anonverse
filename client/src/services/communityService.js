@@ -66,3 +66,18 @@ export const getTopCommunities = async (limit = 5) => {
     return [];
   }
 };
+
+export const getUserCommunities = async () => {
+  const token = localStorage.getItem("token");
+  try {
+    const response = await axios.get(`${API_URL}/user`, {
+      headers: {
+        token: token,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user communities:", error);
+    throw error;
+  }
+};

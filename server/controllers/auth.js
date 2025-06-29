@@ -1,6 +1,9 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User.js';
+import Post from '../models/Post.js';
+import Comment from '../models/Comment.js';
+import Community from '../models/Community.js';
 
 // Register user
 export const register = async (req, res) => {
@@ -100,6 +103,49 @@ export const getUserByUsername = async (req, res) => {
         }
 
         res.json(user);
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+export const updateUserProfile = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const { bio, avatar } = req.body;
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        if (bio !== undefined) user.bio = bio;
+        if (req.file && req.file.path) {
+            user.avatar = req.file.path;
+        } else if (avatar !== undefined) {
+            user.avatar = avatar;
+        }
+        await user.save();
+        res.json({ success: true, user });
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+export const getUserStats = async (req, res) => {
+    try {
+        const { username } = req.params;
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const postCount = await Post.countDocuments({ authorId: user._id });
+        const commentCount = await Comment.countDocuments({ authorId: user._id });
+        const joinedCommunities = await Community.countDocuments({ members: user._id });
+        res.json({
+            postCount,
+            commentCount,
+            joinedCommunities
+        });
     } catch (error) {
         console.error(error.message);
         res.status(500).json({ message: 'Server error' });

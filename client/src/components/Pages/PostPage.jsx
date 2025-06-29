@@ -67,7 +67,7 @@ const PostPage = () => {
           />
           <div className="mt-8 bg-white rounded-xl shadow-sm p-6 border border-gray-200">
             <h3 className="text-lg font-semibold mb-2">
-              Comments ({comments.length})
+              Comments
             </h3>
 
             {/* Show comment form if button clicked or if there are no comments */}
