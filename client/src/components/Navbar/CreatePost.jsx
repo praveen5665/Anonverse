@@ -5,7 +5,7 @@ import { Plus, X } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import CommunityForm from "../CommunityForm";
 
-const CreatePost = () => {
+const CreatePost = ({ onCommunityCreated }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const communityMatch = location.pathname.match(/^\/r\/([^/]+)/);
@@ -43,17 +43,22 @@ const CreatePost = () => {
         >
           {currentCommunity && (
             <>
-              <DropdownMenu.Item  onClick={handleCreatePost} className="px-2 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
-                  <div>Post</div>
-                  <p className="text-[13px] text-gray-500">
+              <DropdownMenu.Item
+                onClick={handleCreatePost}
+                className="px-2 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+              >
+                <div>Post</div>
+                <p className="text-[13px] text-gray-500">
                   share to r/{currentCommunity}
                 </p>
-                
               </DropdownMenu.Item>
               <DropdownMenu.Separator className="h-px bg-gray-200 dark:bg-gray-600 my-2" />
             </>
           )}
-          <DropdownMenu.Item onClick={handleCreateCommunity} className="px-2 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">
+          <DropdownMenu.Item
+            onClick={handleCreateCommunity}
+            className="px-2 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+          >
             Community
             <p className="text-[13px] text-gray-500">Create a new Community</p>
           </DropdownMenu.Item>
@@ -72,13 +77,17 @@ const CreatePost = () => {
 
             {/* Your Form */}
             <CommunityForm
-             onSuccess={(communityName) => {
-              setTimeout(() => {
-                setIsCommunityFormOpen(false);
-                navigate(`/r/${communityName}`);
-              }, 1100);
-            }}
-             />
+              onSuccess={(communityName) => {
+                // Call the refresh function to update sidebar
+                if (onCommunityCreated) {
+                  onCommunityCreated();
+                }
+                setTimeout(() => {
+                  setIsCommunityFormOpen(false);
+                  navigate(`/r/${communityName}`);
+                }, 1100);
+              }}
+            />
           </div>
         </div>
       )}

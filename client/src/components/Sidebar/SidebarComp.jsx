@@ -6,29 +6,42 @@ import { Link, useLocation } from "react-router-dom";
 import { getTopCommunities } from "@/services/communityService";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const SidebarComp = () => {
+const SidebarComp = ({ refreshTrigger }) => {
   const location = useLocation();
   const [communities, setCommunities] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchTopCommunities = async () => {
-      try {
-        const data = await getTopCommunities();
-        setCommunities(data);
-        console.log("Top communities fetched:", data);
-      } catch (error) {
-        console.error("Error fetching top communities:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchTopCommunities = async () => {
+    setLoading(true);
+    try {
+      const data = await getTopCommunities(10); // Fetch top 10 communities
+      // Sort communities by member count in descending order
+      const sortedCommunities = data.sort((a, b) => {
+        const aMemberCount = a.members ? a.members.length : 0;
+        const bMemberCount = b.members ? b.members.length : 0;
+        return bMemberCount - aMemberCount;
+      });
+      setCommunities(sortedCommunities);
+    } catch (error) {
+      console.error("Error fetching top communities:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchTopCommunities();
   }, []);
 
+  // Refresh communities when refreshTrigger changes
+  useEffect(() => {
+    if (refreshTrigger && refreshTrigger > 0) {
+      fetchTopCommunities();
+    }
+  }, [refreshTrigger]);
+
   return (
-    <div className="flex flex-col pt-5">
+    <div className="flex flex-col pt-5 sticky top-0 h-screen overflow-y-auto">
       <div className="upper flex flex-col items-start px-10 gap-2">
         <Button
           variant={location.pathname === "/" ? "default" : "ghost"}
@@ -62,8 +75,8 @@ const SidebarComp = () => {
       <div className="font-medium pl-4 text-lg pt-1">Top Communities</div>
       <div className="flex flex-col px-10 mt-4 gap-2">
         {loading ? (
-          // Loading skeletons
-          Array(5)
+          // Loading skeletons for top 10 communities
+          Array(10)
             .fill(0)
             .map((_, i) => (
               <div key={i} className="flex items-center gap-3">

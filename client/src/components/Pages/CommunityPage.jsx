@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { getCommunityByName, isMember, joinCommunity, leaveCommunity } from "@/services/communityService";
+import {
+  getCommunityByName,
+  isMember,
+  joinCommunity,
+  leaveCommunity,
+} from "@/services/communityService";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
@@ -40,7 +45,7 @@ const CommunityPage = () => {
     if (communityName) {
       fetchCommunity();
     }
-  }, [communityName, member]);
+  }, [communityName]); // Removed 'member' from dependency array
 
   const fetchPosts = async () => {
     if (!community?._id) return;
@@ -66,7 +71,7 @@ const CommunityPage = () => {
 
   useEffect(() => {
     const checkMembership = async () => {
-      if (!community?._id) return;      
+      if (!community?._id) return;
       try {
         const response = await isMember(community._id);
         setMember(response.isMember);
@@ -76,7 +81,7 @@ const CommunityPage = () => {
       }
     };
     checkMembership();
-  }, [community?._id, member]);
+  }, [community?._id]);
 
   const handleJoinCommunity = async () => {
     if (!community?._id) return;
@@ -94,7 +99,7 @@ const CommunityPage = () => {
       console.error("Failed to join community:", error);
       toast("Failed to join community. Please try again later.");
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -196,10 +201,12 @@ const CommunityPage = () => {
                   {community.description}
                 </p>
               </div>
-              <Button 
+              <Button
                 onClick={handleJoinCommunity}
                 className={`${
-                  member ? "bg-red hover:bg-red-700" : "bg-blue-600 hover:bg-blue-700"
+                  member
+                    ? "bg-red hover:bg-red-700"
+                    : "bg-blue-600 hover:bg-blue-700"
                 } text-white px-6 py-2 rounded-full transition-colors shadow-sm`}
               >
                 {member ? "Leave Community" : "Join Community"}
