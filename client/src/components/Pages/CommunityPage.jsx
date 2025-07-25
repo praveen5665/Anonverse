@@ -45,7 +45,7 @@ const CommunityPage = () => {
     if (communityName) {
       fetchCommunity();
     }
-  }, [communityName]); // Removed 'member' from dependency array
+  }, [communityName]); 
 
   const fetchPosts = async () => {
     if (!community?._id) return;
@@ -89,11 +89,19 @@ const CommunityPage = () => {
       if (member) {
         await leaveCommunity(community._id);
         setMember(false);
+        setCommunity(prev => ({
+          ...prev,
+          members: prev.members ? prev.members.slice(0, -1) : []
+          }));
         toast(`You have left r/${community.name}`);
         return;
       }
       await joinCommunity(community._id);
       setMember(true);
+      setCommunity(prev => ({
+        ...prev,
+        members: prev.members ? [...prev.members, {}] : [{}]
+      }));
       toast(`You have joined r/${community.name}`);
     } catch (error) {
       console.error("Failed to join community:", error);
