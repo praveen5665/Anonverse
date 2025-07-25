@@ -8,7 +8,7 @@ import { voteOnComment, deleteComment } from "@/services/commentService";
 import CommentForm from "./CommentForm";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
-const CommentCard = ({ comment, postId, indent = 0 }) => {
+const CommentCard = ({ comment, postId, indent = 0, onCommentAdded }) => {
   const { user, token } = useUserContext();
 
   const {
@@ -96,8 +96,13 @@ const CommentCard = ({ comment, postId, indent = 0 }) => {
   };
 
   const handleReplySubmit = (newReply) => {
+    // Update local state
     comment.children = [...(comment.children || []), newReply];
     setIsReplying(false);
+    // Notify parent component to refetch data
+    if (onCommentAdded) {
+      onCommentAdded(newReply);
+    }
   };
 
   const formatDate = (dateString) => {
@@ -226,6 +231,7 @@ const CommentCard = ({ comment, postId, indent = 0 }) => {
               comment={child}
               postId={postId}
               indent={indent + 1}
+              onCommentAdded={onCommentAdded}
             />
           ))}
         </div>

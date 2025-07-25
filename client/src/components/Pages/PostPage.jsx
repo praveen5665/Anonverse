@@ -41,9 +41,12 @@ const PostPage = () => {
     }
   }, [postId]);
 
-  const handleCommentAdded = (newComment) => {
-    fetchPostData();
-    setShowCommentForm(false);
+  const handleCommentAdded = async (newComment) => {
+    // Add a small delay to ensure backend has processed the comment with user data
+    setTimeout(async () => {
+      await fetchPostData();
+      setShowCommentForm(false);
+    }, 300);
   };
 
   const handleCommentClick = () => {
