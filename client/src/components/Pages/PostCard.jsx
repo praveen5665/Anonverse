@@ -178,20 +178,19 @@ const PostCard = ({ PostData, isPostPage, onCommentClick }) => {
 
       {image && (
         
-        <div className="relative mb-4 max-h-[512px] overflow-hidden rounded-lg">
+        <div className="relative mb-4  overflow-hidden rounded-lg">
           <hr className="my-4" />
           {imageLoading && <Skeleton className="w-full h-64 rounded-lg" />}
-          <img
-            src={image}
-            alt={title}
-            className={`w-full object-contain max-h-[512px] ${
-              imageLoading ? "opacity-0" : "opacity-100"
-            }`}
-            onLoad={() => setImageLoading(false)}
-            onError={() => {
-              setImageLoading(false);
-            }}
-          />
+            <img
+              src={image}
+              alt={title}
+              className={`w-full max-h-[512px] object-contain ${
+                imageLoading ? "opacity-0" : "opacity-100"
+              }`}
+              onLoad={() => setImageLoading(false)}
+              onError={() => setImageLoading(false)}
+            />
+
         </div>
       )}
 
